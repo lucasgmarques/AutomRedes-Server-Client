@@ -1,31 +1,44 @@
 #!/usr/bin/env python3
 import socket
 
-def main():
-    serverHost = 'localhost'
-    serverPort = 9471
+SERVERHOST = 'localhost'
+SERVERPORT = 9472
+
+def create_socket(host, port):
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((host, port))
 
-    server_socket.bind((serverHost, serverPort))
+    return server_socket
 
-    # Servidor está pronto para receber conexões
+def accept_conn(server_socket):
+
     server_socket.listen()
-    print("Servidor está escutando ...")
-
-    # Recebe o pedido de conexão e aceita
+    print("Servidor está escutando...")
     conn, addr = server_socket.accept()
     print("Servidor conectado por:", addr)
 
-    while True:
-        data = conn.recv(1024)
-        if not data:
-            break
-        print(f"Nova mensagem de {addr[0]}: {data.decode()}")
-        data = input(' -> ')
-        conn.send(data.encode())
+    return conn, addr
 
-    conn.close()
+def main():
+
+    connections = 0
+    server_socket = create_socket(SERVERHOST, SERVERPORT)
+    while True:
+        conn, addr = accept_conn(server_socket)
+        connections += 1
+
+        while True:
+
+            data = conn.recv(1024)
+            if not data:
+                break
+            print(f"[Cliente] {addr}: {data.decode()}")
+            data = input(' -> ')
+            conn.send(data.encode())
+
+        conn.close()
+        print(f"Número de conexões atendidas: {connections}")
 
 if __name__ == "__main__":
     main()

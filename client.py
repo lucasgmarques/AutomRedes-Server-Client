@@ -1,27 +1,30 @@
 #!/usr/bin/env python3
-
 import socket
 
+SERVERHOST = 'localhost'
+SERVERPORT = 9472
+
+def create_socket(host, port):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
+
+    return client_socket
+
 def main():
-    serverHost = 'localhost'
-    serverPort = 9471
-
-    socketClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    socketClient.connect((serverHost, serverPort))
-    
     msg= input("Digite aqui a sua mensagem: ")
 
-    while True:
-        socketClient.send(msg.encode('utf-8'))
-        data = socketClient.recv(1024).decode()
+    client_socket = create_socket(SERVERHOST, SERVERPORT)
 
-        print("Recebido do servidor: " + data)
+    while msg.lower() != 'tchau':
+        client_socket.send(msg.encode('utf-8'))
+        data = client_socket.recv(1024).decode()
+
+        print(f"[Servidor]: {data}")
 
         msg = input(" --> ")
     
-
-    socketClient.close()
+    print("Finalizando a conexão!")
+    client_socket.close()
 
 if __name__ == "__main__":
     main()
